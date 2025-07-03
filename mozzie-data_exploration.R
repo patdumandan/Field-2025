@@ -21,20 +21,22 @@ moz_dat$year=as.integer(moz_dat$year)
 moz_dat$Date=as.Date(moz_dat$Date)
 
 
-moz_all=moz_dat%>%
-  group_by(Temperature, Date)%>%
-  mutate(Total=n())%>%
-  select(Temperature, Date, status, Total)%>%
-  group_by(Temperature, Date, status)%>%
-  mutate(Count=n(),
-         prop=Count/Total)%>%
+moz_all= moz_dat %>%
+  group_by(Temperature, Date, status) %>%
+  mutate(Count = n()) %>%
+  ungroup() %>%
+  group_by(Temperature, Date) %>%
+  mutate(Total = n()) %>%
+  group_by(Temperature, Date, status) %>%
+  mutate(CumSum = cumsum(1),
+         CumFrac = CumSum / Total) %>%
   drop_na()
 
 require(ggplot2)
 
 
-ggplot(moz_all, aes(x=Date, y=prop, fill=status))+
+ggplot(moz_all, aes(x=Date, y=CumFrac, fill=status))+
   geom_col()+#geom_line()+
   theme_classic()+
   facet_wrap(~Temperature)+
-  ylab("counts")
+  ylab("cumulative fractions")
