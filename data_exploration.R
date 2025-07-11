@@ -11,6 +11,10 @@ loc_dat=loc_dat%>%
          speed=Distance_cm/Time_sec)
 
 ws_dat=loc_dat%>%filter(Taxon=="wolf_spider")
+
+ws_dat$Time_sec[is.na(ws_dat$Time_sec)] <- 0
+ws_dat$Distance_cm[is.na(ws_dat$Distance_cm)] <- 0
+
 wv_dat=loc_dat%>%filter(Taxon=="weevil")
 mu_dat=loc_dat%>%filter(Taxon=="muscids")
 
@@ -32,8 +36,8 @@ ggplot(ws_dat_size, aes(x=loc_temp, y=speed, col=Size_cat))+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("wolf spider")
 
-ggplot(ws_dat, aes(x=loc_temp, y=speed))+
-  geom_point()+
+ggplot(ws_dat, aes(x=loc_temp, y=speed, col=Location))+
+  geom_point(aes(col=Location))+ 
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
@@ -46,9 +50,20 @@ ggplot(wv_dat, aes(x=loc_temp, y=speed))+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("weevil")
 
-ggplot(mu_dat, aes(x=loc_temp, y=speed))+
-  geom_point()+
+ggplot(mu_dat, aes(x=loc_temp, y=speed, col=Location))+
+  geom_point(aes(col=Location))+
   geom_smooth(method="gam")+
-  theme_classic()+
+  theme_classic()+facet_wrap(~Location)+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("muscids")
+
+#HKDT####
+
+hkdt_dat=loc_dat%>%filter(test=="HKDT")
+
+hkdt_dat$end_time_s=as.numeric(hkdt_dat$end_time_s)
+
+
+ggplot(hkdt_dat, aes(x=Temp, y=end_time_s, col=Taxon))+
+  geom_boxplot(aes(col=Taxon))+facet_wrap(~Location)+
+  theme_classic()
