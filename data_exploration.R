@@ -59,11 +59,16 @@ ggplot(mu_dat, aes(x=loc_temp, y=speed, col=Location))+
 
 #HKDT####
 
-hkdt_dat=loc_dat%>%filter(test=="HKDT")
+hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(35:45))%>%
+  mutate(acclim_type=case_when(Acclim_temp<5~"cold",
+                               Acclim_temp%in%c(6:19) ~"ambient",
+                               Acclim_temp>25 ~"hot",
+                               Acclim_temp= NA ~"ambient"))%>%
+  filter(acclim_type%in%c("cold", "hot"))
 
 hkdt_dat$end_time_s=as.numeric(hkdt_dat$end_time_s)
 
 
-ggplot(hkdt_dat, aes(x=Temp, y=end_time_s, col=Taxon))+
-  geom_boxplot(aes(col=Taxon))+facet_wrap(~Location)+
-  theme_classic()
+ggplot(hkdt_dat, aes(x=Temp, y=end_time_s))+
+  geom_boxplot(aes(col=acclim_type))+facet_wrap(~Taxon)+
+  theme_classic()+ylab("HKDT")+xlab("Temperature")
