@@ -6,7 +6,7 @@ require(lubridate)
 #load data###
 filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data\\Aedes"
 
-filename = paste(filepath, '\\Aedes-devt-rate_2025','.csv', sep = ',')
+filename = paste(filepath, '\\Aedes-devt-rate_2025','.csv', sep = '')
 
 tempdat=paste(filepath, '\\T1-10C','.txt', sep = '')
 
