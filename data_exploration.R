@@ -61,10 +61,27 @@ ggplot(mos_dat, aes(x=loc_temp, y=speed, col=Location))+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("mosquito")
 
+##craneflies####
+cran_dat=loc_dat%>%filter(Taxon=="craneflies")
+
+ggplot(cran_dat, aes(x=loc_temp, y=speed, col=Location))+
+  geom_point(aes(col=Location))+
+  geom_smooth(method="gam")+
+  theme_classic()+
+  ylab("speed (cm/s)")+xlab("Temperature(C)")+
+  ggtitle("craneflies")
+
 #HKDT####
 
-hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(35:45))%>%
-  mutate(acclim_type=case_when(Acclim_temp<5~"cold",
+hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(30:45))%>%
+  mutate(
+    hkdt_temp_range=case_when(
+      Temp >= 30   & Temp < 35    ~ "30",
+      Temp >= 35   & Temp < 40    ~ "35",
+      Temp >= 40   & Temp < 45    ~ "40",
+      Temp >= 45   & Temp < 50    ~ "45",
+      Temp >= 50   & Temp < 55    ~ "50"),
+    acclim_type=case_when(Acclim_temp<5~"cold",
                                Acclim_temp%in%c(6:19) ~"ambient",
                                Acclim_temp>25 ~"hot",
                                Acclim_temp= NA ~"ambient"))%>%
@@ -73,7 +90,7 @@ hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(35:45))%>%
 hkdt_dat$end_time_s=as.numeric(hkdt_dat$end_time_s)
 hkdt_dat$end_time_m=hkdt_dat$end_time_s/60
 
-ggplot(hkdt_dat, aes(x=Temp, y=end_time_m, ))+
+ggplot(hkdt_dat, aes(x=hkdt_temp_range, y=end_time_m))+
   geom_boxplot(aes(fill=acclim_type))+facet_wrap(~Taxon)+
   theme_classic()+ylab("HKDT (min)")+xlab("Temperature (Celsius)")+
   scale_fill_manual(values=c("cold"="black", "hot"="grey"))
