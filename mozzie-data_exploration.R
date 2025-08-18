@@ -16,7 +16,7 @@ tempdat1=read.csv(tempdat, fileEncoding = "Latin1", header=T)
 #reconfigure table for analysis###
 
 moz_dat <- moz1 %>%
-  pivot_longer(cols = 3:23, names_to = "date") %>% #make sure to increase cols end until end of experiment
+  pivot_longer(cols = 3:37, names_to = "date") %>% #make sure to increase cols end until end of experiment
   rename(status = value) %>%
   mutate(
     clean_date = stringr::str_remove_all(date, "X") %>% str_replace_all("\\.", "-"),

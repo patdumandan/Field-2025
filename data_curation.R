@@ -4,11 +4,11 @@ require(ggplot2)
 
 filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
 
-filename = paste(filepath, '\\locomotion_2025','.csv', sep = '')
+filename = paste(filepath, '\\ecophys_2025','.csv', sep = '')
 
-loc_dat=read.csv(filename,header=T, sep=",")
+ecophys_data=read.csv(filename,header=T, sep=",")
 
-loc_dat=loc_dat%>%
+ecophys_dat=ecophys_data%>%
   mutate(movement=if_else(Distance_cm<1, "no", "yes"),
          speed=Distance_cm/Time_sec,
         # Size_cat=case_when(Weight_g<0.04 ~"S",
@@ -27,13 +27,13 @@ loc_dat=loc_dat%>%
            loc_temp >= 50  & loc_temp < 55   ~ "50-55",
            loc_temp >= 55  & loc_temp <= 60  ~ "55-60"))
 
-write.csv(loc_dat, "loc_dat.csv")
+write.csv(ecophys_dat, "ecophys_dat.csv")
 
 #proceed to data_exploration.R file, if you want to visualize the data
 
-#summary table####
+#summary table for locomotion####
 
-all_loc_dat=loc_dat%>%filter(!is.na(loc_temp))
+all_loc_dat=ecophys_dat%>%filter(!is.na(loc_temp))
 
 loc_summary_dat=all_loc_dat%>%
   group_by(Location, Taxon, temp_range)%>%

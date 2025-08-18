@@ -1,9 +1,11 @@
 #here, you open the "Processed file/document"
 
+#Data####
 filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
 
-filename = paste(filepath, '\\loc_dat','.csv', sep = '')
+filename = paste(filepath, '\\ecophys_dat','.csv', sep = '')
 
+#Locomotion####
 ##wolf spider####
 
 ws_dat=loc_dat%>%filter(Taxon=="wolf_spider")
@@ -73,9 +75,10 @@ ggplot(cran_dat, aes(x=loc_temp, y=speed, col=Location))+
 
 #HKDT####
 
-hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(30:45))%>%
+hkdt_dat=ecophys_dat%>%filter(test=="HKDT", Temp%in%c(30:55))%>%
   mutate(
     hkdt_temp_range=case_when(
+      Temp >= 25   & Temp < 30    ~ "25",
       Temp >= 30   & Temp < 35    ~ "30",
       Temp >= 35   & Temp < 40    ~ "35",
       Temp >= 40   & Temp < 45    ~ "40",
@@ -83,7 +86,7 @@ hkdt_dat=loc_dat%>%filter(test=="HKDT", Temp%in%c(30:45))%>%
       Temp >= 50   & Temp < 55    ~ "50"),
     acclim_type=case_when(Acclim_temp<5~"cold",
                                Acclim_temp%in%c(6:19) ~"ambient",
-                               Acclim_temp>25 ~"hot",
+                               Acclim_temp>20 ~"hot",
                                Acclim_temp= NA ~"ambient"))%>%
   filter(acclim_type%in%c("cold", "hot"))
 
@@ -91,6 +94,12 @@ hkdt_dat$end_time_s=as.numeric(hkdt_dat$end_time_s)
 hkdt_dat$end_time_m=hkdt_dat$end_time_s/60
 
 ggplot(hkdt_dat, aes(x=hkdt_temp_range, y=end_time_m))+
-  geom_boxplot(aes(fill=acclim_type))+facet_wrap(~Taxon)+
+  geom_boxplot(aes(fill=acclim_type))+geom_jitter()+facet_wrap(~Taxon)+
   theme_classic()+ylab("HKDT (min)")+xlab("Temperature (Celsius)")+
-  scale_fill_manual(values=c("cold"="black", "hot"="grey"))
+  scale_fill_manual(values=c("cold"="blue", "hot"="red"))
+
+
+hkdt_summary_dat=hkdt_dat%>%
+  group_by(Location, Taxon, hkdt_temp_range, acclim_type)%>%
+  summarise(sample_size=n())
+
