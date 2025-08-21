@@ -16,7 +16,7 @@ tempdat1=read.csv(tempdat, fileEncoding = "Latin1", header=T)
 #reconfigure table for analysis###
 
 moz_dat <- moz1 %>%
-  pivot_longer(cols = 3:37, names_to = "date") %>% #make sure to increase cols end until end of experiment
+  pivot_longer(cols = 3:38, names_to = "date") %>% #make sure to increase cols end until end of experiment
   rename(status = value) %>%
   mutate(
     clean_date = stringr::str_remove_all(date, "X") %>% str_replace_all("\\.", "-"),
@@ -45,12 +45,15 @@ moz_prop <- moz_dat %>%
 
 require(ggplot2)
 
+colz=c("larva"="navyblue", "pupa"="lightblue", "adult"="grey50", "dead"="black")
+
 ggplot(moz_prop, aes(x=Date, y=value, fill=stage))+
   geom_col()+#geom_line()+
   theme_classic()+
   facet_wrap(~Temperature)+
   ylab("proportion")+
-  scale_color_viridis_c()
+  scale_fill_manual(values=colz)+
+  ggtitle("Mosquito Development Rate")
 
 moz_dat$Date=as.Date(moz_dat$Date)
 

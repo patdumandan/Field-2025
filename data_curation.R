@@ -25,7 +25,10 @@ ecophys_dat=ecophys_data%>%
            loc_temp >= 40  & loc_temp < 45   ~ "40-45",
            loc_temp >= 45  & loc_temp < 50   ~ "45-50",
            loc_temp >= 50  & loc_temp < 55   ~ "50-55",
-           loc_temp >= 55  & loc_temp <= 60  ~ "55-60"))
+           loc_temp >= 55  & loc_temp <= 60  ~ "55-60"))%>%
+  mutate(area=case_when(Location=="Nuuk" ~"low arctic",
+                             Location== "Kobbefjord" ~ "low arctic",
+                             Location== "Zackenberg" ~ "high arctic"))
 
 write.csv(ecophys_dat, "ecophys_dat.csv")
 
@@ -38,4 +41,22 @@ all_loc_dat=ecophys_dat%>%filter(!is.na(loc_temp))
 loc_summary_dat=all_loc_dat%>%
   group_by(Location, Taxon, temp_range)%>%
   summarise(sample_size=n())
+
+#summary table for CTmax####
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
+
+filename = paste(filepath, '\\CTmax_data','.csv', sep = '')
+
+ctmax_data=read.csv(filename,header=T, sep=",")
+
+ctmax_dat=ctmax_data%>%
+  filter(Observer=="Henriek", !is.na(CTmax), !CTmax=="Dead")%>%
+  mutate(area=case_when(Location=="Nuuk" ~"low arctic",
+                        Location== "Kobbefjord" ~ "low arctic",
+                        Location== "Zackenberg" ~ "high arctic"),
+         CTmax=as.numeric(CTmax))%>%
+  group_by(area, Species)%>%
+  summarise(n=n(),
+            mean_val=median(CTmax), sd_val=sd(CTmax))
+
 

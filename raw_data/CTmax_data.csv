@@ -1,0 +1,72 @@
+Observer,Date,Species,Indiv,Body mass(g),Location,CTmax,Ramping rate (C/min),Start temp
+Pat,12-Jun,wolf spider,1,,Nuuk,43,0.29,8
+Pat,12-Jun,wolf spider,2,,Nuuk,42,0.29,8
+Pat,12-Jun,wolf spider,3,,Nuuk,41,0.29,8
+Pat,12-Jun,wolf spider,4,,Nuuk,40,0.29,8
+Pat,12-Jun,wolf spider,5,,Nuuk,42,0.29,8
+Henriek,12-Jun,bottle fly,1,0.05,Nuuk,37,0.3,4.6
+Henriek,12-Jun,bottle fly,2,0.07,Nuuk,33.2,0.3,4.6
+Henriek,12-Jun,bottle fly,3,0.06,Nuuk,40,0.3,4.6
+Henriek,12-Jun,bottle fly,4,0.07,Nuuk,32.6,0.3,4.6
+Henriek,12-Jun,bottle fly,5,0.05,Nuuk,38,0.3,4.6
+Henriek,14-Jun,mosquito,1,,Nuuk,36.4,0.28,13.3
+Henriek,14-Jun,wasp,1,,Nuuk,40.7,0.28,13.3
+Henriek,15-Jun,midges,1,,Nuuk,29.5,0.18,15
+Henriek,15-Jun,midges,12,,Nuuk,33.9,0.18,15
+Henriek,15-Jun,midges,13,,Nuuk,19.6,0.18,15
+Henriek,15-Jun,midges,14,,Nuuk,31.5,0.18,15
+Henriek,15-Jun,midges,15,,Nuuk,Dead,0.18,15
+Henriek,15-Jun,midges,16,,Nuuk,31.7,0.18,15
+Pat,15-Jun,moth,1,,Nuuk,37.6,0.19,11
+Pat,15-Jun,moth,2,,Nuuk,40.5,0.19,11
+Pat,15-Jun,moth,3,,Nuuk,32.7,0.19,11
+Pat,15-Jun,moth,4,,Nuuk,36.2,0.19,11
+Pat,15-Jun,moth,5,,Nuuk,37.41,0.17,11
+Pat,15-Jun,moth,6,,Nuuk,38.1,0.17,11
+Henriek,18-Jun,weevil,1,,Kobbefjord,37.9,0.18,9.6
+Henriek,18-Jun,weevil,2,,Kobbefjord,37.7,0.18,9.6
+Henriek,18-Jun,weevil,3,,Kobbefjord,36.3,0.18,9.6
+Henriek,18-Jun,weevil,4,,Kobbefjord,40.5,0.18,9.6
+Henriek,18-Jun,carabid,1,,Kobbefjord,29.8,0.19,8.7
+Henriek,18-Jun,carabid,3,,Kobbefjord,33,0.19,8.7
+Henriek,18-Jun,carabid,4,,Kobbefjord,32.4,0.19,8.7
+Henriek,18-Jun,carabid,5,,Kobbefjord,32.6,0.19,8.7
+Henriek,19-Jun,bumblebee,1,,Kobbefjord,40.5,0.18,22
+Henriek,19-Jun,bumblebee,2,,Kobbefjord,44,0.19,22
+Henriek,July,bottle fly,1,0.0676,Zackenberg,42.3,0.2,15
+Henriek,July,syrphid,1,0.0106,Zackenberg,34.2,0.2,15
+Henriek,July,mosquito,1,0.0559,Zackenberg,39,0.2,15
+Henriek,July,mosquito,2,0.0028,Zackenberg,37.9,0.2,15
+Henriek,July,bottle fly,2,0.0091,Zackenberg,38.5,0.2,15
+Henriek,July,empid,1,0.0309,Zackenberg,41.7,0.2,15
+Henriek,July,muscid,1,0.0114,Zackenberg,39,0.2,15
+Henriek,July,muscid,1,0.022,Zackenberg,38.2,0.2,15
+Henriek,July,bottle fly,3,0.0552,Zackenberg,40.8,0.2,15
+Henriek,July,bottle fly,4,0.0767,Zackenberg,40,0.2,15
+Henriek,July,empid,1,0.0257,Zackenberg,43.3,0.2,15
+Henriek,July,muscid,3,0.0118,Zackenberg,38,0.2,15
+Henriek,July,syrphid,2,0.0102,Zackenberg,35.7,0.2,15
+Henriek,July,syrphid,3,0.0134,Zackenberg,37.5,0.2,15
+Henriek,July,syrphid,4,0.0102,Zackenberg,33.4,0.2,15
+Henriek,July,syrphid,5,0.0089,Zackenberg,36.9,0.2,15
+Henriek,July,syrphid,6,0.0059,Zackenberg,30.2,0.2,15
+Henriek,July,syrphid,7,0.0075,Zackenberg,31.2,0.2,15
+Henriek,July,syrphid,8,0.0045,Zackenberg,31.6,0.2,15
+Henriek,July,syrphid,9,0.0089,Zackenberg,35.4,0.2,15
+Henriek,July,syrphid,10,0.0072,Zackenberg,35.9,0.2,15
+Henriek,July,syrphid,11,0.0108,Zackenberg,36,0.2,15
+Henriek,July,syrphid,12,0.0092,Zackenberg,36.2,0.2,15
+Henriek,July,syrphid,13,0.0051,Zackenberg,36.3,0.2,15
+Henriek,July,syrphid,14,0.0081,Zackenberg,36.3,0.2,15
+Henriek,July,syrphid,15,0.0081,Zackenberg,36.5,0.2,15
+Henriek,July,syrphid,16,0.0084,Zackenberg,36.7,0.2,15
+Henriek,July,syrphid,17,0.0047,Zackenberg,36.7,0.2,15
+Henriek,July,syrphid,18,0.0082,Zackenberg,37.2,0.2,15
+Henriek,July,syrphid,19,0.0086,Zackenberg,37.5,0.2,15
+Henriek,July,syrphid,20,0.0121,Zackenberg,38,0.2,15
+Henriek,July,syrphid,21,0.0071,Zackenberg,38.7,0.2,15
+Pat,15-Jun,midges,7,0.0014,Nuuk,35.7,0.18,15
+Pat,15-Jun,midges,8,0.0001,Nuuk,21.6,0.18,15
+Pat,15-Jun,midges,9,0.0002,Nuuk,32.6,0.18,15
+Pat,15-Jun,midges,10,0.0003,Nuuk,33.8,0.18,15
+Pat,15-Jun,midges,11,0.0001,Nuuk,33.4,0.18,15
