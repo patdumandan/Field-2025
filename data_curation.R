@@ -50,7 +50,7 @@ filename = paste(filepath, '\\CTmax_data','.csv', sep = '')
 ctmax_data=read.csv(filename,header=T, sep=",")
 
 ctmax_dat=ctmax_data%>%
-  filter(Observer=="Henriek", !is.na(CTmax), !CTmax=="Dead")%>%
+  filter(!is.na(CTmax), !CTmax=="Dead")%>%
   mutate(area=case_when(Location=="Nuuk" ~"low arctic",
                         Location== "Kobbefjord" ~ "low arctic",
                         Location== "Zackenberg" ~ "high arctic"),
@@ -59,4 +59,15 @@ ctmax_dat=ctmax_data%>%
   summarise(n=n(),
             mean_val=median(CTmax), sd_val=sd(CTmax))
 
+#summary of experiments####
 
+
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
+
+filename = paste(filepath, '\\TEMPNET_metadata','.csv', sep = '')
+
+meta_data=read.csv(filename,header=T, sep=",")
+
+meta_dat=meta_data%>%
+  group_by(Location, SiteLong,SiteLat, Experiment)%>%
+  summarise(n=sum(SampleSize))

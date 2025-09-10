@@ -7,14 +7,12 @@ filename = paste(filepath, '\\ecophys_dat','.csv', sep = '')
 
 #Locomotion####
 ##wolf spider####
-
+cols=c("high arctic"= "navyblue", "low arctic"="orange")
 
 ws_dat=ecophys_dat%>%filter(Taxon=="wolf_spider")
 
 ws_dat$Time_sec[is.na(ws_dat$Time_sec)] <- 0
 ws_dat$Distance_cm[is.na(ws_dat$Distance_cm)] <- 0
-
-zacws_dat=ecophys_dat%>%filter(Taxon=="muscids", Location=="Zackenberg")
 
 ws_plot=ggplot(ws_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point()+ 
@@ -25,7 +23,6 @@ ws_plot=ggplot(ws_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_vline(xintercept=42, lty=2)+
   scale_color_manual(values=cols)
 
-cols=c("high arctic"= "navyblue", "low arctic"="orange")
 
 ggplot(ws_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point()+ 
@@ -49,7 +46,7 @@ wv_plot=ggplot(wv_dat, aes(x=loc_temp, y=speed, col=area))+
 
 ##muscid####
 mu_dat=ecophys_dat%>%filter(Taxon=="muscids")
-#zacmu_dat=loc_dat%>%filter(Taxon=="muscids", Location=="Zackenberg",loc_temp<45)
+zacmu_dat=loc_dat%>%filter(Taxon=="muscids",loc_temp<38)
 
 mu_plot=ggplot(mu_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point(aes(col=area))+ geom_vline(xintercept=38, lty=2)+
