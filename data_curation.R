@@ -2,7 +2,7 @@ require(dplyr)
 require(tidyr)
 require(ggplot2)
 
-filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data\\ecophysiology"
 
 filename = paste(filepath, '\\ecophys_2025','.csv', sep = '')
 
@@ -43,7 +43,7 @@ loc_summary_dat=all_loc_dat%>%
   summarise(sample_size=n())
 
 #summary table for CTmax####
-filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data\\ecophysiology"
 
 filename = paste(filepath, '\\CTmax_data','.csv', sep = '')
 

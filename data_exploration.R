@@ -46,7 +46,7 @@ wv_plot=ggplot(wv_dat, aes(x=loc_temp, y=speed, col=area))+
 
 ##muscid####
 mu_dat=ecophys_dat%>%filter(Taxon=="muscids")
-zacmu_dat=loc_dat%>%filter(Taxon=="muscids",loc_temp<38)
+zacmu_dat=ecophys_dat%>%filter(Taxon=="muscids",loc_temp<38)
 
 mu_plot=ggplot(mu_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point(aes(col=area))+ geom_vline(xintercept=38, lty=2)+
