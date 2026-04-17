@@ -1,0 +1,46 @@
+Sampling events:
+
+Date: 05-Jul-2025
+Set time: 1130-1830
+Weather conditions: sunny and mild wind
+
+Date: 09-Jul-2025
+Set time: 930-1800
+Weather conditions: cloudy
+
+Date: 12-Jul-2025
+Time: 10:15-18:30
+Weather conditions: clear skies, oppressively sunny
+
+Date: 16-Jul-2025
+Time: 10:05- 1800
+Weather conditions: sunny, hot and humid, calm winds but gusts of westerly winds occurred in the afternoon. 
+Notes:
+Trap A was toppled over so low catch but Trap B, which was fine, also had low catch rate. Low catch makes transfer way easier.
+
+Date: 19-Jul-2025
+Time: 10:40-18:30
+Weather conditions: fair, sunny, gentle breeze
+
+Date: 23-Jul-2025
+Time: 1100-1830
+Weather conditions: fair, light breeze, sunny
+
+Date: 26-Jul-2025
+Time: 930-1830
+Weather conditions: fair, light air/breeze, partly cloudy
+
+Date: 30-Jul-2025
+Time: 9:20-1700
+Weather conditions: overcast with periods of sunshine, some fogginess in the morning, windy
+Notes:
+Had to terminate early due to increasingly strong winds
+
+Date: 02-Aug-2025
+Time: 11:20-18:20
+Weather conditions: foggy at the onset and offset but clear for most part of the day, a bit chilly
+Notes: combination of BG yeast and kitchen yeast used
+
+
+
+
