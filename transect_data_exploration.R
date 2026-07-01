@@ -1,13 +1,13 @@
 require(dplyr)
 require(tidyr)
 
-transect_dat2025=read.csv("C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data\\transect\\transect_2025.csv")
-transect_dat2024=read.csv("C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2024\\Greenland_Data_TempGradient.csv")
+transect_dat2025=read.csv("C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025\\raw_data\\transect\\transect_2025.csv")
+transect_dat2024=read.csv("C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2024\\Greenland_Data_TempGradient.csv")
 
 transect2025_summary=transect_dat2025%>%
   drop_na()%>%
-  group_by(Day, Site.Logger)%>%
-  summarise(detects=length(which(Insect.Plant.Interactions!="NA")))
+  group_by(Day, Site.Logger)%>%filter(!Insect.Plant.Interactions=="NA")%>%
+  summarise(detects=length(which(Insect.Plant.Interactions!="")))
 
 transect2024_summary=transect_dat2024%>%
   drop_na()%>%

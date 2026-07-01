@@ -2,19 +2,28 @@ require(dplyr)
 require(tidyr)
 require(ggplot2)
 
-filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data\\ecophysiology"
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025\\raw_data\\ecophysiology"
 
 filename = paste(filepath, '\\ecophys_2025','.csv', sep = '')
 
 ecophys_data=read.csv(filename,header=T, sep=",")
 
+ecophys_data=ecophys_data%>%
+  mutate(
+    clean_date = stringr::str_remove_all(Date, "X") %>% str_replace_all("\\.", "-"),
+    date = mdy(clean_date),
+    year=year(date))
+
 ecophys_dat=ecophys_data%>%
-  mutate(movement=if_else(Distance_cm<1, "no", "yes"),
-         speed=Distance_cm/Time_sec,
+  mutate(movement = if_else(Distance_cm < 1, "no", "yes"),
+           speed = case_when(
+             Time_sec == 0 & Distance_cm == 0 ~ 0,
+             Time_sec == 0 & Distance_cm > 0 ~ NA_real_,
+             TRUE ~ Distance_cm / Time_sec),
         # Size_cat=case_when(Weight_g<0.04 ~"S",
          #                   Weight_g>0.04 ~"L"),
          temp_range=case_when(
-           loc_temp >= 0   & loc_temp < 5    ~ "0-5",
+           loc_temp >= -5   & loc_temp < 5    ~ "0-5",
            loc_temp >= 5   & loc_temp < 10   ~ "5-10",
            loc_temp >= 10  & loc_temp < 15   ~ "10-15",
            loc_temp >= 15  & loc_temp < 20   ~ "15-20",

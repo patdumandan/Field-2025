@@ -1,9 +1,11 @@
 #here, you open the "Processed file/document"
 
 #Data####
-filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\fieldwork\\2025\\Field-2025\\raw_data"
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025\\raw_data"
 
 filename = paste(filepath, '\\ecophys_dat','.csv', sep = '')
+
+ecophys_dat=read.csv(filename, header=T)
 
 #Locomotion####
 ##wolf spider####
