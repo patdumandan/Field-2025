@@ -8,7 +8,6 @@ zacdat1=zacdat%>%filter(!is.na(Distance_cm))%>%
   group_by(Taxon, temp_range)%>%
   summarise(sample_size=n())
 
-
 zacdat=ecophys_dat%>%filter(!is.na(Distance_cm))%>%
   filter(Location=="Zackenberg",
          !Taxon%in%c("sympistis_larva", "wooly_moth"))
@@ -28,23 +27,23 @@ ggplot(zacdat, aes(x=loc_temp, y=speed, color=as.factor(year)))+
 zaccran=zacdat%>%filter(Taxon=="craneflies")
 
 ggplot(zaccran, aes(x=loc_temp, y=speed))+
-  geom_point(aes(color=as.factor(year)))+ xlim(0,35)+
+  geom_point(aes(color=as.factor(year)))+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
-  ggtitle("craneflies")+xlim(0,35)+
-  geom_vline(xintercept=42, lty=2)
+  ggtitle("craneflies")
+ # geom_vline(xintercept=42, lty=2)
 
 #empids####
 zacemp=zacdat%>%filter(Taxon=="empids")
 
 ggplot(zacemp, aes(x=loc_temp, y=speed))+
-  geom_point(aes(color=as.factor(year)))+ xlim(0,35)+
+  geom_point(aes(color=as.factor(year)))+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
-  ggtitle("empids")+
-  geom_vline(xintercept=42, lty=2)
+  ggtitle("empids")
+ # geom_vline(xintercept=42, lty=2)
 
 #muscids####
 zacmus=zacdat%>%filter(Taxon=="muscids")
@@ -60,11 +59,37 @@ ggplot(zacmus, aes(x=loc_temp, y=speed))+
 #wolf spiders####
 zacws_summary=zacdat1%>%filter(Taxon=="wolf_spider")
 
-zacws=zacdat%>%filter(Taxon=="wolf_spider", !loc_temp>40)
+zacws=zacdat%>%filter(Taxon=="wolf_spider")
 
 ggplot(zacws, aes(x=loc_temp, y=speed))+
   geom_point(aes(color=as.factor(year)))+ xlim(0,50)+
   geom_smooth(method="gam")+
+  theme_classic()+
+  ylab("speed (cm/s)")+xlab("Temperature(C)")+
+  ggtitle("wolf spiders")+
+  geom_vline(xintercept=42, lty=2)
+
++##acclimation effect; speed at >45C####
+
+zacws_at=zacws%>%filter(!Acclim_time=="", !Acclim_time<2)
+
+ggplot(zacws_at,aes(x=Acclim_time, y=speed, col=as.factor(year)))+
+  geom_boxplot()+geom_jitter()+
+  theme_classic()+ggtitle("wolf spider speed >45C")
+
+zacat=zacws%>%filter(!Acclim_time=="")%>%
+  group_by(Acclim_time)%>%
+  summarise(sample_size=n())
+
+#3 taxa
+
+zac3=zacdat%>%filter(Taxon%in%c("wolf_spider", "craneflies", "muscids"))                     
+
+
+ggplot(zac3, aes(x=loc_temp, y=speed, col=Taxon))+
+  geom_point(aes(color=as.factor(Taxon)))+ xlim(0,50)+
+  ylim(0,10)+
+  geom_smooth(method="gam", aes(col=Taxon))+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("wolf spiders")+

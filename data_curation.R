@@ -1,6 +1,8 @@
 require(dplyr)
 require(tidyr)
 require(ggplot2)
+require(stringr)
+require(lubridate)
 
 filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025\\raw_data\\ecophysiology"
 
@@ -23,18 +25,20 @@ ecophys_dat=ecophys_data%>%
         # Size_cat=case_when(Weight_g<0.04 ~"S",
          #                   Weight_g>0.04 ~"L"),
          temp_range=case_when(
-           loc_temp >= -5   & loc_temp < 5    ~ "0-5",
-           loc_temp >= 5   & loc_temp < 10   ~ "5-10",
-           loc_temp >= 10  & loc_temp < 15   ~ "10-15",
-           loc_temp >= 15  & loc_temp < 20   ~ "15-20",
-           loc_temp >= 20  & loc_temp < 25   ~ "20-25",
-           loc_temp >= 25  & loc_temp < 30   ~ "25-30",
-           loc_temp >= 30  & loc_temp < 35   ~ "30-35",
-           loc_temp >= 35  & loc_temp < 40   ~ "35-40",
-           loc_temp >= 40  & loc_temp < 45   ~ "40-45",
-           loc_temp >= 45  & loc_temp < 50   ~ "45-50",
-           loc_temp >= 50  & loc_temp < 55   ~ "50-55",
-           loc_temp >= 55  & loc_temp <= 60  ~ "55-60"))%>%
+           loc_temp >=-2.5   & loc_temp <= 2.5    ~ "0",
+           loc_temp >= 2.6   & loc_temp <= 7.5    ~ "5",
+           loc_temp >= 7.6   & loc_temp <= 12.5   ~ "10",
+           loc_temp >= 12.6   & loc_temp <= 17.5    ~ "15",
+           loc_temp >= 17.6   & loc_temp <= 22.5    ~ "20",
+           loc_temp >= 22.6   & loc_temp <= 27.5    ~ "25",
+           loc_temp >= 27.6  & loc_temp <= 32.5   ~ "30",
+           loc_temp >= 32.6   & loc_temp <= 37.5    ~ "35",
+           loc_temp >= 37.6  & loc_temp <= 42.5   ~ "40",
+           loc_temp >= 42.6   & loc_temp <= 47.5    ~ "45",
+           loc_temp >= 47.6  & loc_temp <= 52.5   ~ "50",
+           loc_temp >= 52.6  & loc_temp <= 57.5   ~ "55",
+           loc_temp >= 57.6  & loc_temp <= 62.5   ~ "60",
+           loc_temp >= 62.6  & loc_temp <= 67.5   ~ "65"))%>%
   mutate(area=case_when(Location=="Nuuk" ~"low arctic",
                              Location== "Kobbefjord" ~ "low arctic",
                              Location== "Zackenberg" ~ "high arctic"))
