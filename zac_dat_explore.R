@@ -59,10 +59,10 @@ ggplot(zacmus, aes(x=loc_temp, y=speed))+
 #wolf spiders####
 zacws_summary=zacdat1%>%filter(Taxon=="wolf_spider")
 
-zacws=zacdat%>%filter(Taxon=="wolf_spider")
+zacws=zacdat%>%filter(Taxon=="wolf_spider", !Acclim_time>1)
 
 ggplot(zacws, aes(x=loc_temp, y=speed))+
-  geom_point(aes(color=as.factor(year)))+ xlim(0,50)+
+  geom_point(aes(color=as.factor(year)))+ xlim(0,65)+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+

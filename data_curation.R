@@ -25,7 +25,7 @@ ecophys_dat=ecophys_data%>%
         # Size_cat=case_when(Weight_g<0.04 ~"S",
          #                   Weight_g>0.04 ~"L"),
          temp_range=case_when(
-           loc_temp >=-2.5   & loc_temp <= 2.5    ~ "0",
+           loc_temp >=-5.0   & loc_temp <= 2.5    ~ "0",
            loc_temp >= 2.6   & loc_temp <= 7.5    ~ "5",
            loc_temp >= 7.6   & loc_temp <= 12.5   ~ "10",
            loc_temp >= 12.6   & loc_temp <= 17.5    ~ "15",
