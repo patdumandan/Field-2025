@@ -15,13 +15,13 @@ zacdat=ecophys_dat%>%filter(!is.na(Distance_cm))%>%
 zacdat$Time_sec[is.na(zacdat$Time_sec)] <- 0
 zacdat$Distance_cm[is.na(zacdat$Distance_cm)] <- 0
 
-ggplot(zacdat, aes(x=loc_temp, y=speed, color=as.factor(year)))+
-  geom_point()+ facet_wrap(~Taxon)+
-  geom_smooth(aes(group=as.factor(year)),method="gam")+
+ggplot(zacdat, aes(x=loc_temp, y=speed))+
+  geom_point(aes(color=as.factor(year)))+
+  geom_smooth(method="gam")+ facet_wrap(~Taxon)+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
-  ggtitle("Zackenberg")+
-  geom_vline(xintercept=42, lty=2)
+  ggtitle("Zackenberg")
+ # geom_vline(xintercept=42, lty=2)
 
 #craneflies####
 zaccran=zacdat%>%filter(Taxon=="craneflies")
@@ -45,16 +45,32 @@ ggplot(zacemp, aes(x=loc_temp, y=speed))+
   ggtitle("empids")
  # geom_vline(xintercept=42, lty=2)
 
+#mosquitoes####
+zacmoz=zacdat%>%filter(Taxon=="mosquito", year=="2026")
+
+median(zacmoz$speed, na.rm=T)
+
+zacmoz1=zacmoz%>%filter(!is.na(Distance_cm))%>%
+  group_by(temp_range)%>%
+  summarise(sample_size=n())
+
+ggplot(zacmoz, aes(x=loc_temp, y=speed))+
+  geom_point(aes(color=as.factor(year)))+
+  geom_smooth(method="gam")+
+  theme_classic()+
+  ylab("speed (cm/s)")+xlab("Temperature(C)")+
+  ggtitle("mosquitoes")
+
 #muscids####
 zacmus=zacdat%>%filter(Taxon=="muscids")
 
 ggplot(zacmus, aes(x=loc_temp, y=speed))+
-  geom_point(aes(color=as.factor(year)))+ xlim(0,50)+
+  geom_point(aes(color=as.factor(year)))+ 
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
-  ggtitle("muscids")+
-  geom_vline(xintercept=39, lty=2)
+  ggtitle("muscids")
+#  geom_vline(xintercept=39, lty=2)
 
 #wolf spiders####
 zacws_summary=zacdat1%>%filter(Taxon=="wolf_spider")

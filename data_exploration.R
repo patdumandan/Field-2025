@@ -22,7 +22,7 @@ ws_plot=ggplot(ws_dat, aes(x=loc_temp, y=speed, col=area))+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("wolf spider")+
-  geom_vline(xintercept=42, lty=2)+
+#  geom_vline(xintercept=42, lty=2)+
   scale_color_manual(values=cols)
 
 
@@ -43,7 +43,7 @@ wv_plot=ggplot(wv_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
-  ggtitle("weevil")+ geom_vline(xintercept=38, lty=2)+
+  ggtitle("weevil")+ #geom_vline(xintercept=38, lty=2)+
   scale_color_manual(values=cols)
 
 ##muscid####
@@ -51,7 +51,7 @@ mu_dat=ecophys_dat%>%filter(Taxon=="muscids")
 zacmu_dat=ecophys_dat%>%filter(Taxon=="muscids",loc_temp<38)
 
 mu_plot=ggplot(mu_dat, aes(x=loc_temp, y=speed, col=area))+
-  geom_point(aes(col=area))+ geom_vline(xintercept=38, lty=2)+
+  geom_point(aes(col=area))+ #geom_vline(xintercept=38, lty=2)+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
@@ -64,7 +64,7 @@ mos_dat=ecophys_dat%>%filter(Taxon=="mosquito")
 mo_plot=ggplot(mos_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point(aes(col=area))+
   geom_smooth(method="gam")+
-  theme_classic()+ geom_vline(xintercept=38, lty=2)+
+  theme_classic()+ #geom_vline(xintercept=38, lty=2)+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("mosquito")+
   scale_color_manual(values=cols)
@@ -72,15 +72,26 @@ mo_plot=ggplot(mos_dat, aes(x=loc_temp, y=speed, col=area))+
 ##craneflies####
 cran_dat=ecophys_dat%>%filter(Taxon=="craneflies")
 
-cran_plot=ggplot(cran_dat, aes(x=loc_temp, y=speed, col=Location))+
-  geom_point(aes(col=Location))+
+cran_plot=ggplot(cran_dat, aes(x=loc_temp, y=speed, col=area))+
+  geom_point(aes(col=area))+
   geom_smooth(method="gam")+
   theme_classic()+
   ylab("speed (cm/s)")+xlab("Temperature(C)")+
   ggtitle("craneflies")+
   scale_color_manual(values=cols)
 
-ggarrange(ws_plot,wv_plot,mu_plot,mo_plot, nrow=2, ncol=2)
+##empids####
+emp_dat=ecophys_dat%>%filter(Taxon=="empids")
+
+emp_plot=ggplot(emp_dat, aes(x=loc_temp, y=speed, col=area))+
+  geom_point(aes(col=area))+
+  geom_smooth(method="gam")+
+  theme_classic()+
+  ylab("speed (cm/s)")+xlab("Temperature(C)")+
+  ggtitle("empids")+
+  scale_color_manual(values=cols)
+
+ggarrange(ws_plot,wv_plot,mu_plot,mo_plot, emp_plot, cran_plot, nrow=3, ncol=2)
 
 #HKDT####
 
