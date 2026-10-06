@@ -59,7 +59,7 @@ mu_plot=ggplot(mu_dat, aes(x=loc_temp, y=speed, col=area))+
   scale_color_manual(values=cols)
 
 ##mosquito####
-mos_dat=ecophys_dat%>%filter(Taxon=="mosquito")
+mos_dat=ecophys_dat%>%filter(Taxon=="mosquito", Distance_cm<10)
 
 mo_plot=ggplot(mos_dat, aes(x=loc_temp, y=speed, col=area))+
   geom_point(aes(col=area))+
@@ -91,7 +91,18 @@ emp_plot=ggplot(emp_dat, aes(x=loc_temp, y=speed, col=area))+
   ggtitle("empids")+
   scale_color_manual(values=cols)
 
-ggarrange(ws_plot,wv_plot,mu_plot,mo_plot, emp_plot, cran_plot, nrow=3, ncol=2)
+##seed bugs####
+seed_dat=ecophys_dat%>%filter(Taxon=="seed_bug")
+
+seed_plot=ggplot(seed_dat, aes(x=loc_temp, y=speed, col=area))+
+  geom_point(aes(col=area))+
+  geom_smooth(method="gam")+
+  theme_classic()+
+  ylab("speed (cm/s)")+xlab("Temperature(C)")+
+  ggtitle("seed bugs")+
+  scale_color_manual(values=cols)
+
+ggarrange(ws_plot,wv_plot,mu_plot,mo_plot, emp_plot, cran_plot,seed_plot, nrow=4, ncol=2)
 
 #HKDT####
 
