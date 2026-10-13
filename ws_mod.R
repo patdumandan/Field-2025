@@ -1,3 +1,18 @@
+require(cmdstanr)
+require(dplyr)
+require(tidyr)
+require(ggplot2)
+require(stringr)
+require(lubridate)
+
+source("C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025\\curve_functions.R")
+
+filepath = "C:\\pdumandanSLU\\PatD-SLU\\SLU\\TEMPNET\\2025\\Field-2025"
+
+filename = paste(filepath, '\\ecophys_dat','.csv', sep = '')
+
+ecophys_dat=read.csv(filename,header=T, sep=",")
+
 ws_dat=ecophys_dat%>%
   filter(Taxon=="wolf_spider",area=="high arctic",
          !is.na(loc_temp),
@@ -7,14 +22,16 @@ ws_dat=ecophys_dat%>%
   mutate(indiv_ID=as.integer(as.factor(Sample_ID)))
 
 ws_speed_dat=ws_dat %>%
-  filter(movement == 1,!is.na(speed),speed > 0)
+  filter(movement == 1,!is.na(speed),speed > 0)%>%
+  mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
+         speed_scaled=speed/max(speed))
 
 ws_temp_pred <- seq(
   min(ws_dat$loc_temp),
   max(ws_dat$loc_temp),
   length.out = 200)
 
-ws_data_stan=list(
+ws_movedata_stan=list(
   N = nrow(ws_dat),
   temp = ws_dat$loc_temp,
   moved = ws_dat$movement,
@@ -24,97 +41,119 @@ ws_data_stan=list(
   speed = ws_speed_dat$speed,
   ID_speed = ws_speed_dat$indiv_ID,
   N_ID = length(unique(ws_dat$indiv_ID)),
-  N_pred = length(temp_pred),
-  temp_pred = temp_pred)
+  N_pred = length(ws_temp_pred),
+  temp_pred = ws_temp_pred)
 
-tpc_mod_ws=cmdstan_model("flex_tpc.stan")
+ws_speeddata_stan=list(
+  N = nrow(ws_speed_dat),
+  temp = ws_speed_dat$loc_temp,
+  speed = ws_speed_dat$speed_scaled,
+  N_ID = nlevels(ws_speed_dat$ID_factor),
+  ID = ws_speed_dat$ID_stan,
+  N_pred = length(ws_temp_pred),
+  temp_pred = ws_temp_pred)
 
-fit_ws=tpc_mod_ws$sample(data = ws_data_stan,
-                             chains = 4,
-                             parallel_chains = 4,iter_warmup = 500,
-                             iter_sampling = 2000,seed = 123,
-                             adapt_delta = 0.95)
+#tpc_mod_ws=cmdstan_model("flex_tpc.stan")
+speed_mod_ws=cmdstan_model("speed_mod.stan") #speed model
+move_mod_ws=cmdstan_model("movement_mod.stan") #movement model
 
-fit_ws$summary(
+fit_move_ws=move_mod_ws$sample(
+  data = ws_movedata_stan,
+  chains = 4,iter_warmup = 500,
+  iter_sampling = 2000,seed = 123,
+  adapt_delta = 0.95)
+
+fit_speed_ws=speed_mod_ws$sample(
+  data = ws_speeddata_stan, chains = 4,
+  iter_warmup = 500,iter_sampling = 2000,seed = 123,
+  adapt_delta = 0.95)
+
+fit_speed_ws$diagnostic_summary()
+fit_move_ws$diagnostic_summary()
+
+fit_speed_ws$summary(
   variables = c(
-    "pmax",
-    "Tmove",
+    "Topt",
     "Tmin",
     "Tmax",
-    "Topt",
-    "rmax",
     "alpha",
     "beta",
-    "sigma",
-    "sd_move",
-    "sd_speed"))
+    "rmax",
+    "cv"))
 
-ws_movement_draws <- fit_ws$draws("movement_pred",format = "matrix")
+#MOVEMENT####
+ws_movement_draws=fit_move_ws$draws(variables = "movement_pred",format = "matrix")
 
-ws_speed_draws <- fit_ws$draws("speed_pred",format = "matrix")
+ws_movement_curve=summarise_curve(ws_movement_draws,ws_temp_pred)
 
-ws_overall_draws <- fit_ws$draws("overall_pred",format = "matrix")
+ws_movement_lines=posterior_lines(ws_movement_draws,ws_temp_pred,n_draws = n_draw_lines)
 
-ws_overall_obs=ws_dat%>%
-  mutate(observed_performance = if_else(movement == 1,speed,0))
+ws_move_pars=fit_move_ws$draws(variables = c("pmax", "Tmove", "kcold", "khot"),
+                                     format = "data.frame")
 
-ws_overall_curve <- data.frame(
-  temp = ws_temp_pred,
-  mean = apply(ws_overall_draws,2,mean),
-  lower = apply(ws_overall_draws,2,quantile,0.025),
-  upper = apply(ws_overall_draws,2,quantile,0.975))
+ws_movement_Topt=apply(ws_movement_draws,1, function(x) {ws_temp_pred[which.max(x)]})
 
-ggplot(ws_overall_curve,aes(x = temp,y = mean)) +
-  geom_point(data = ws_overall_obs,aes(
-    x = loc_temp,y = observed_performance),
-    inherit.aes = FALSE,alpha = 0.4) +
-  geom_ribbon(aes(ymin = lower,ymax = upper),alpha = 0.2) +
-  geom_line(linewidth = 1) +
-  theme_classic() +
-  labs(x = "Temperature (°C)",
-       y = "overall locomotor performance")+
-  ggtitle("wolf spiders (ZAC only)")+
-  geom_vline(xintercept=ws_Topt_med, lty=2, col="black", lwd=1)+
-  geom_vline(xintercept=ws_Tmin_med, lty=2, col="grey", lwd=1)+
-  geom_vline(xintercept=ws_Tmax_med, lty=2, col="grey", lwd=1)+
-  annotate( "text", x = Inf,y = Inf,
-            label = paste0("\u03b1 = ", round(ws_alpha_med, 2),
-                           "\n\u03b2 = ", round(ws_beta_med, 2)),
-            hjust = 3.5,vjust = 1.2)
+ws_movement_Topt_quants=quantile(ws_movement_Topt,c(0.025,0.5,0.975))
 
-#SPEED
-ws_speed_pars=fit_ws$draws(variables = c("Tmin", "Tmax", "alpha", "beta", "Topt"),
-                               format = "data.frame")
-ws_speed_Topt=(ws_speed_pars$alpha * ws_speed_pars$Tmax +
-                   (1 - ws_speed_pars$alpha) * ws_speed_pars$Tmin)
+#SPEED####
+ws_speed_draws=fit_speed_ws$draws(variables = "speed_pred",format = "matrix")
 
-quantile(ws_speed_Topt,probs = c(0.025, 0.5, 0.975)) #mean Topt=25.49C
+ws_speed_draws_orig=ws_speed_draws*max(ws_speed_dat$speed)
 
-#MOVEMENT
-ws_movement_draws=fit_ws$draws(variables = "movement_pred",format = "matrix")
+ws_speed_curve=summarise_curve(ws_speed_draws,ws_temp_pred)
 
-ws_movement_Topt=apply(ws_movement_draws,1,function(x) {temp_pred[which.max(x)]})
+ws_speed_lines=posterior_lines(ws_speed_draws,ws_temp_pred,n_draws = n_draw_lines)
 
-quantile(ws_movement_Topt,probs = c(0.025, 0.5, 0.975)) #mean Topt=37.90C
+ws_speed_pars=fit_speed_ws$draws(variables=c("Topt","Tmin", "Tmax", "alpha", 
+                                                   "beta", "rmax", "cv"),
+                                       format = "data.frame")%>%
+  mutate(rmax_orig=rmax*max(ws_speed_dat$speed))
 
-#OVERALL
-ws_overall_draws=fit_ws$draws(variables = "overall_pred",format = "matrix")
+#OVERALL PERFORMANCE
 
-ws_overall_Topt=apply(ws_overall_draws,1,function(x) {temp_pred[which.max(x)]})
+ws_n_joint= min(nrow(ws_movement_draws),nrow(ws_speed_draws_orig))
 
-quantile(ws_overall_Topt,probs = c(0.025, 0.5, 0.975)) #mean Topt=25.69C
+ws_move_ids <- sample(seq_len(nrow(ws_movement_draws)),ws_n_joint,replace = FALSE)
 
-#THERMAL LIMITS
+ws_speed_ids <- sample(seq_len(nrow(ws_speed_draws_orig)),ws_n_joint,replace = FALSE)
+
+ws_movement_joint <-ws_movement_draws[ws_move_ids,,drop = FALSE]
+
+ws_speed_joint <-ws_speed_draws_orig[ws_speed_ids,,drop = FALSE]
+
+ws_overall_draws=ws_movement_joint*ws_speed_joint
+
+ws_overall_curve<-summarise_curve(ws_overall_draws,ws_temp_pred)
+
+ws_overall_lines<-posterior_lines(ws_overall_draws,ws_temp_pred,n_draws = n_draw_lines)
+
+ws_overall_Topt <- apply(ws_overall_draws,1,function(x) {ws_temp_pred[which.max(x)]})
 
 # Posterior medians
+ws_Topt_med=median(ws_overall_Topt)
 ws_Tmin_med=median(ws_speed_pars$Tmin)
 ws_Tmax_med=median(ws_speed_pars$Tmax)
 
 #alpha
 ws_alpha_med=median(ws_speed_pars$alpha)
 
-#alpha
+#beta
 ws_beta_med=median(ws_speed_pars$beta)
 
-#topt
-ws_Topt_med=median(ws_speed_pars$Topt)
+ws_p_overall <- ggplot()+geom_line(data =ws_overall_lines,aes(x = temp,y = value,group = draw),
+                                      alpha = 0.06,linewidth = 0.3) +
+  geom_ribbon(data = ws_overall_curve,aes(x = temp,ymin = lower,ymax = upper),
+              alpha = 0.2) +geom_line(data = ws_overall_curve,
+                                      aes( x = temp,y = median),linewidth = 1.1)+
+  geom_point(data =ws_dat,aes(x = loc_temp,y = if_else(movement == 0, 0, speed)), 
+             alpha = 0.4) + theme_classic()+ggtitle("wolf spiders (ZAC only)")+
+  geom_vline(xintercept=ws_Topt_med, lty=2, col="black", lwd=1)+
+  geom_vline(xintercept=ws_Tmin_med, lty=2, col="grey", lwd=1)+
+  geom_vline(xintercept=ws_Tmax_med, lty=2, col="grey", lwd=1)+
+  annotate( "text", x = Inf,y = Inf,
+            label = paste0("\u03b1 = ", round(ws_alpha_med, 3),
+                           "\n\u03b2 = ", round(ws_beta_med, 3)),
+            hjust = 2.5,vjust = 1.2)+labs(x = "Temperature (°C)",
+                                          y = "overall performance")
+
+ws_p_overall

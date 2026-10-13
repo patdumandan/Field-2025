@@ -17,11 +17,12 @@ ecophys_data=ecophys_data%>%
     year=year(date))
 
 ecophys_dat=ecophys_data%>%
-  mutate(movement = if_else(Distance_cm <= 1, 0, 1),
+  mutate(
            speed = case_when(
              Time_sec == 0 & Distance_cm == 0 ~ 0,
              Time_sec == 0 & Distance_cm > 0 ~ NA_real_,
              TRUE ~ Distance_cm / Time_sec),
+           movement = if_else(speed <= 0, 0, 1),
         # Size_cat=case_when(Weight_g<0.04 ~"S",
          #                   Weight_g>0.04 ~"L"))
          # temp_range=case_when(
