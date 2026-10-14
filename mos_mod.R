@@ -12,7 +12,7 @@ filename = paste(filepath, '\\ecophys_dat','.csv', sep = '')
 ecophys_dat=read.csv(filename,header=T, sep=",")
 
 mos_dat=ecophys_dat%>%
-  filter(Taxon=="mosquito",area=="high arctic",
+  filter(Taxon=="mosquito",area=="high arctic", year==2026,
          !is.na(loc_temp),
          !is.na(Distance_cm),
          !is.na(movement),
@@ -22,7 +22,8 @@ mos_dat=ecophys_dat%>%
 mos_speed_dat=mos_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 mos_temp_pred <- seq(
   min(mos_dat$loc_temp),
@@ -40,7 +41,7 @@ mos_movedata_stan=list(
   ID_speed = mos_speed_dat$indiv_ID,
   N_ID = length(unique(mos_dat$indiv_ID)),
   N_pred = length(mos_temp_pred),
-  mos_temp_pred = mos_temp_pred)
+  temp_pred = mos_temp_pred)
 
 mos_speeddata_stan=list(
   N = nrow(mos_speed_dat),
@@ -49,30 +50,28 @@ mos_speeddata_stan=list(
   N_ID = nlevels(mos_speed_dat$ID_factor),
   ID = mos_speed_dat$ID_stan,
   N_pred = length(mos_temp_pred),
-  mos_temp_pred = mos_temp_pred)
+  weight=mos_speed_dat$weight_z,
+  temp_pred = mos_temp_pred)
 
 #tpc_mod_mos=cmdstan_model("flex_tpc.stan") #speed+movement model
-speed_mod_mos=cmdstan_model("speed_mod.stan") #speed model
-move_mod_mos=cmdstan_model("movement_mod.stan") #movement model
+speed_mod=cmdstan_model("speed_mod.stan") #speed model
+move_mod=cmdstan_model("movement_mod.stan") #movement model
 
 fit_mos=tpc_mod_mos$sample(
   data = mos_data_stan,
-  chains = 4,
-  parallel_chains = 4,iter_warmup = 500,
+  chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
-fit_move_mos=move_mod_mos$sample(
+fit_move_mos=move_mod$sample(
   data = mos_movedata_stan,
-  chains = 4,
-  parallel_chains = 4,iter_warmup = 500,
+  chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
-fit_speed_mos=speed_mod_mos$sample(
+fit_speed_mos=speed_mod$sample(
   data = mos_speeddata_stan,
-  chains = 4,
-  parallel_chains = 4,iter_warmup = 500,
+  chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
@@ -87,7 +86,8 @@ fit_speed_mos$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
 
 n_draw_lines <- 100
 set.seed(123)
@@ -157,6 +157,7 @@ mos_overall_curve<-summarise_curve(mos_overall_draws,mos_temp_pred)
 mos_overall_lines<-posterior_lines(mos_overall_draws,mos_temp_pred,n_draws = n_draw_lines)
 
 mos_overall_Topt <- apply(mos_overall_draws,1,function(x) {mos_temp_pred[which.max(x)]})
+quantile(mos_overall_Topt,c(0.025,0.5,0.975))
 
 # Posterior medians
 mos_Topt_med=median(mos_overall_Topt)
@@ -165,9 +166,11 @@ mos_Tmax_med=median(mos_speed_pars$Tmax)
 
 #alpha
 mos_alpha_med=median(mos_speed_pars$alpha)
+quantile(mos_speed_pars$alpha,c(0.025,0.5,0.975))
 
 #beta
 mos_beta_med=median(mos_speed_pars$beta)
+quantile(mos_speed_pars$beta,c(0.025,0.5,0.975))
 
 mos_p_overall <- ggplot()+geom_line(data =mos_overall_lines,aes(x = temp,y = value,group = draw),
                                     alpha = 0.06,linewidth = 0.3) +
@@ -184,3 +187,4 @@ mos_p_overall <- ggplot()+geom_line(data =mos_overall_lines,aes(x = temp,y = val
                            "\n\u03b2 = ", round(mos_beta_med, 3)),
             hjust = 2.5,vjust = 1.2)
 
+mos_p_overall

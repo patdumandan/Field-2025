@@ -24,7 +24,8 @@ cran_dat=ecophys_dat%>%
 cran_speed_dat=cran_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 cran_temp_pred <- seq(
   min(cran_dat$loc_temp),
@@ -64,11 +65,12 @@ cran_speeddata_stan=list(
   N_ID = nlevels(cran_speed_dat$ID_factor),
   ID = cran_speed_dat$ID_stan,
   N_pred = length(cran_temp_pred),
+  weight=cran_speed_dat$weight_z,
   temp_pred = cran_temp_pred)
 
 tpc_mod_cran=cmdstan_model("flex_tpc.stan") #speed+movement model
-speed_mod_cran=cmdstan_model("speed_mod.stan") #speed model
-move_mod_cran=cmdstan_model("movement_mod.stan") #movement model
+speed_mod=cmdstan_model("speed_mod.stan") #speed model
+move_mod=cmdstan_model("movement_mod.stan") #movement model
 
 fit_cran=tpc_mod_cran$sample(
                      data = cran_data_stan,
@@ -89,13 +91,13 @@ fit_cran=tpc_mod_cran$sample(
 #     "sd_move",
 #     "sd_speed"))
 
-fit_move_cran=move_mod_cran$sample(
+fit_move_cran=move_mod$sample(
   data = cran_movedata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
-fit_speed_cran=speed_mod_cran$sample(
+fit_speed_cran=speed_mod$sample(
   data = cran_speeddata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
@@ -112,7 +114,8 @@ fit_speed_cran$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
 
 cran_movement_draws <- fit_cran$draws("movement_pred",format = "matrix")
 
@@ -160,6 +163,7 @@ cran_Tmax_med=median(cran_speed_pars$Tmax)
 
 #alpha
 cran_alpha_med=median(cran_speed_pars$alpha)
+quantile(cran_speed_pars$alpha, probs = c(0.025, 0.5, 0.975))
 
 #beta
 cran_beta_med=median(cran_speed_pars$beta)
@@ -240,6 +244,7 @@ cran_overall_curve<-summarise_curve(cran_overall_draws,cran_temp_pred)
 cran_overall_lines<-posterior_lines(cran_overall_draws,cran_temp_pred,n_draws = n_draw_lines)
 
 cran_overall_Topt <- apply(cran_overall_draws,1,function(x) {cran_temp_pred[which.max(x)]})
+quantile(cran_overall_Topt, probs=c(0.025,0.5, 0.975))
 
 # Posterior medians
 cran_Topt_med=median(cran_overall_Topt)
@@ -248,9 +253,11 @@ cran_Tmax_med=median(cran_speed_pars$Tmax)
 
 #alpha
 cran_alpha_med=median(cran_speed_pars$alpha)
+quantile(cran_speed_pars$alpha, probs=c(0.025,0.5, 0.975))
 
 #beta
 cran_beta_med=median(cran_speed_pars$beta)
+quantile(cran_speed_pars$beta, probs=c(0.025,0.5, 0.975))
 
 cran_p_overall <- ggplot()+geom_line(data =cran_overall_lines,aes(x = temp,y = value,group = draw),
                                       alpha = 0.06,linewidth = 0.3) +

@@ -22,7 +22,8 @@ mus_dat=ecophys_dat%>%
 mus_speed_dat=mus_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 mus_temp_pred <- seq(
   min(mus_dat$loc_temp),
@@ -49,11 +50,12 @@ mus_speeddata_stan=list(
   N_ID = nlevels(mus_speed_dat$ID_factor),
   ID = mus_speed_dat$ID_stan,
   N_pred = length(mus_temp_pred),
+  weight=mus_speed_dat$weight_z,
   temp_pred = mus_temp_pred)
 
 tpc_mod_mus=cmdstan_model("flex_tpc.stan")
-speed_mod_mus=cmdstan_model("speed_mod.stan") #speed model
-move_mod_mus=cmdstan_model("movement_mod.stan") #movement model
+speed_mod=cmdstan_model("speed_mod.stan") #speed model
+move_mod=cmdstan_model("movement_mod.stan") #movement model
 
 # fit_mus=tpc_mod_mus$sample(
 #   data = mus_data_stan,
@@ -62,13 +64,13 @@ move_mod_mus=cmdstan_model("movement_mod.stan") #movement model
 #   iter_sampling = 2000,seed = 123,
 #   adapt_delta = 0.99)
 
-fit_move_mus=move_mod_mus$sample(
+fit_move_mus=move_mod$sample(
   data = mus_movedata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
-fit_speed_mus=speed_mod_mus$sample(
+fit_speed_mus=speed_mod$sample(
   data = mus_speeddata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
@@ -85,7 +87,8 @@ fit_speed_mus$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
 
 n_draw_lines <- 100
 set.seed(123)
@@ -153,6 +156,7 @@ mus_overall_curve<-summarise_curve(mus_overall_draws,mus_temp_pred)
 mus_overall_lines<-posterior_lines(mus_overall_draws,mus_temp_pred,n_draws = n_draw_lines)
 
 mus_overall_Topt <- apply(mus_overall_draws,1,function(x) {mus_temp_pred[which.max(x)]})
+quantile(mus_overall_Topt,c(0.025,0.5,0.975))
 
 # Posterior medians
 mus_Topt_med=median(mus_overall_Topt)
@@ -161,10 +165,11 @@ mus_Tmax_med=median(mus_speed_pars$Tmax)
 
 #alpha
 mus_alpha_med=median(mus_speed_pars$alpha)
+quantile(mus_speed_pars$alpha,c(0.025,0.5,0.975))
 
 #beta
 mus_beta_med=median(mus_speed_pars$beta)
-
+quantile(mus_speed_pars$beta,c(0.025,0.5,0.975))
 mus_p_overall <- ggplot()+geom_line(data =mus_overall_lines,aes(x = temp,y = value,group = draw),
                                     alpha = 0.06,linewidth = 0.3) +
   geom_ribbon(data = mus_overall_curve,aes(x = temp,ymin = lower,ymax = upper),

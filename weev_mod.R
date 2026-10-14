@@ -22,7 +22,8 @@ weev_dat=ecophys_dat%>%
 weev_speed_dat=weev_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 weev_temp_pred <- seq(
   min(weev_dat$loc_temp),
@@ -49,6 +50,7 @@ weev_speeddata_stan=list(
   N_ID = nlevels(weev_speed_dat$ID_factor),
   ID = weev_speed_dat$ID_stan,
   N_pred = length(weev_temp_pred),
+  weight=weev_speed_dat$weight_z,
   temp_pred = weev_temp_pred)
 
 tpc_mod_weev=cmdstan_model("flex_tpc.stan")
@@ -78,7 +80,8 @@ fit_speed_weev$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
 
 n_draw_lines <- 100
 set.seed(123)
@@ -146,6 +149,7 @@ weev_overall_curve<-summarise_curve(weev_overall_draws,weev_temp_pred)
 weev_overall_lines<-posterior_lines(weev_overall_draws,weev_temp_pred,n_draws = n_draw_lines)
 
 weev_overall_Topt <- apply(weev_overall_draws,1,function(x) {weev_temp_pred[which.max(x)]})
+quantile(weev_overall_Topt, probs=c(0.025, 0.5, 0.975))
 
 # Posterior medians
 weev_Topt_med=median(weev_overall_Topt)
@@ -154,9 +158,11 @@ weev_Tmax_med=median(weev_speed_pars$Tmax)
 
 #alpha
 weev_alpha_med=median(weev_speed_pars$alpha)
+quantile(weev_speed_pars$alpha, probs=c(0.025, 0.5, 0.975))
 
 #beta
 weev_beta_med=median(weev_speed_pars$beta)
+quantile(weev_speed_pars$beta, probs=c(0.025, 0.5, 0.975))
 
 weev_p_overall <- ggplot()+geom_line(data =weev_overall_lines,aes(x = temp,y = value,group = draw),
                                     alpha = 0.06,linewidth = 0.3) +

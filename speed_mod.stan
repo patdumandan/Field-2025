@@ -34,6 +34,7 @@ data {
   int<lower=1> N;
   vector[N] temp;
   vector<lower=0>[N] speed;
+  vector [N] weight;
  // int<lower=1> N_ID;
 //  array[N]int<lower=1, upper=N_ID> ID;
 
@@ -42,7 +43,7 @@ data {
 }
 
 parameters {
-    real<lower=min(temp),upper=max(temp)> Topt;
+  real<lower=min(temp),upper=max(temp)> Topt;
 
   real<lower=0> dTmin;   //dist. bet. lowest + speed temp. and est. Tmin
   real<lower=0> dTmax; //dist. bet. highest + speed temp. and est. Tmax
@@ -55,6 +56,7 @@ parameters {
   // SD(speed) = cv * expected speed
   real<lower=0> cv;
 
+  real b_weight;
  // vector[N_ID] z_ID;
  // real<lower=0> sd_ID;
 }
@@ -82,14 +84,15 @@ model {
 
   cv ~ lognormal(log(0.5),0.5);
 
+  b_weight ~ normal(0, 0.5); //weight eff
  // z_ID ~ std_normal();
  // sd_ID ~ normal(0,0.5);
 
   for (i in 1:N) {
 
-    real mu=flex_tpc(temp[i],Tmin,Tmax,rmax,alpha,beta);
+    real mu_tpc=flex_tpc(temp[i],Tmin,Tmax,rmax,alpha,beta);
 
- //   real mu =mu_population *exp(ID_effect[ID[i]]);
+    real mu =mu_tpc *exp(b_weight*weight[i]); //add weight eff
    
     real shape=1 / square(cv);
 

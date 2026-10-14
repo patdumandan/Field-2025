@@ -24,7 +24,8 @@ seedb_dat=ecophys_dat%>%
 seedb_speed_dat=seedb_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 seedb_temp_pred <- seq(
   min(seedb_dat$loc_temp),
@@ -51,6 +52,7 @@ seedb_speeddata_stan=list(
   N_ID = nlevels(seedb_speed_dat$ID_factor),
   ID = seedb_speed_dat$ID_stan,
   N_pred = length(seedb_temp_pred),
+  weight=seedb_speed_dat$weight_z,
   temp_pred = seedb_temp_pred)
 
 # tpc_mod_seedb=cmdstan_model("flex_tpc.stan")
@@ -88,7 +90,8 @@ fit_speed_seedb$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
 
 #MOVEMENT####
 seedb_movement_draws=fit_move_seedb$draws(variables = "movement_pred",format = "matrix")
@@ -137,6 +140,7 @@ seedb_overall_curve<-summarise_curve(seedb_overall_draws,seedb_temp_pred)
 seedb_overall_lines<-posterior_lines(seedb_overall_draws,seedb_temp_pred,n_draws = n_draw_lines)
 
 seedb_overall_Topt <- apply(seedb_overall_draws,1,function(x) {seedb_temp_pred[which.max(x)]})
+quantile(seedb_overall_Topt, probs=c(0.025, 0.5, 0.975))
 
 # Posterior medians
 seedb_Topt_med=median(seedb_overall_Topt)
@@ -145,9 +149,11 @@ seedb_Tmax_med=median(seedb_speed_pars$Tmax)
 
 #alpha
 seedb_alpha_med=median(seedb_speed_pars$alpha)
+quantile(seedb_speed_pars$alpha, probs=c(0.025, 0.5, 0.975))
 
 #beta
 seedb_beta_med=median(seedb_speed_pars$beta)
+quantile(seedb_speed_pars$beta, probs=c(0.025, 0.5, 0.975))
 
 seedb_p_overall <- ggplot()+geom_line(data =seedb_overall_lines,aes(x = temp,y = value,group = draw),
                                     alpha = 0.06,linewidth = 0.3) +

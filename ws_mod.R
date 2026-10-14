@@ -128,6 +128,7 @@ ws_overall_curve<-summarise_curve(ws_overall_draws,ws_temp_pred)
 ws_overall_lines<-posterior_lines(ws_overall_draws,ws_temp_pred,n_draws = n_draw_lines)
 
 ws_overall_Topt <- apply(ws_overall_draws,1,function(x) {ws_temp_pred[which.max(x)]})
+quantile(ws_overall_Topt, probs=c(0.025,0.5, 0.975))
 
 # Posterior medians
 ws_Topt_med=median(ws_overall_Topt)
@@ -136,9 +137,11 @@ ws_Tmax_med=median(ws_speed_pars$Tmax)
 
 #alpha
 ws_alpha_med=median(ws_speed_pars$alpha)
+quantile(ws_speed_pars$alpha,c(0.025,0.5,0.975))
 
 #beta
 ws_beta_med=median(ws_speed_pars$beta)
+quantile(ws_speed_pars$beta,c(0.025,0.5,0.975))
 
 ws_p_overall <- ggplot()+geom_line(data =ws_overall_lines,aes(x = temp,y = value,group = draw),
                                       alpha = 0.06,linewidth = 0.3) +

@@ -42,7 +42,8 @@ ecophys_dat=ecophys_data%>%
          #   loc_temp >= 62.6  & loc_temp <= 67.5   ~ "65"))%>%
   area=case_when(Location=="Nuuk" ~"low arctic",
                              Location== "Kobbefjord" ~ "low arctic",
-                             Location== "Zackenberg" ~ "high arctic"))
+                             Location== "Zackenberg" ~ "high arctic"),
+  weight_z=as.numeric(scale(Weight_g)))
 
 write.csv(ecophys_dat, "ecophys_dat.csv")
 

@@ -16,3 +16,4 @@ posterior_lines= function(draw_matrix,temp_pred,n_draws = 100) {
     mutate(draw = seq_len(n_draws))%>%
     pivot_longer(cols = -draw,names_to = "prediction",values_to = "value" )%>%
     group_by(draw)%>%mutate(temp = temp_pred) %>%ungroup()}
+

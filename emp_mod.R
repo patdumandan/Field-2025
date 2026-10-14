@@ -24,7 +24,8 @@ emp_dat=ecophys_dat%>%
 emp_speed_dat=emp_dat %>%
   filter(movement == 1,!is.na(speed),!speed < 0)%>%
   mutate(ID_factor = factor(indiv_ID),ID_stan = as.integer(ID_factor),
-         speed_scaled=speed/max(speed))
+         speed_scaled=speed/max(speed))%>%
+  filter(!is.na(weight_z))
 
 emp_temp_pred <- seq(
   min(emp_dat$loc_temp),
@@ -51,19 +52,20 @@ emp_speeddata_stan=list(
   N_ID = nlevels(emp_speed_dat$ID_factor),
   ID = emp_speed_dat$ID_stan,
   N_pred = length(emp_temp_pred),
+  weight = emp_speed_dat$weight_z,
   temp_pred = emp_temp_pred)
 
 #tpc_mod_emp=cmdstan_model("flex_tpc.stan")
-speed_mod_emp=cmdstan_model("speed_mod.stan") #speed model
-move_mod_emp=cmdstan_model("movement_mod.stan") #movement model
+speed_mod=cmdstan_model("speed_mod.stan") #speed model
+move_mod=cmdstan_model("movement_mod.stan") #movement model
 
-fit_move_emp=move_mod_emp$sample(
+fit_move_emp=move_mod$sample(
   data = emp_movedata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
   adapt_delta = 0.95)
 
-fit_speed_emp=speed_mod_emp$sample(
+fit_speed_emp=speed_mod$sample(
   data = emp_speeddata_stan,
   chains = 4,iter_warmup = 500,
   iter_sampling = 2000,seed = 123,
@@ -80,7 +82,9 @@ fit_speed_emp$summary(
     "alpha",
     "beta",
     "rmax",
-    "cv"))
+    "cv",
+    "b_weight"))
+
 #MOVEMENT####
 emp_movement_draws=fit_move_emp$draws(variables = "movement_pred",format = "matrix")
 
@@ -128,6 +132,7 @@ emp_overall_curve<-summarise_curve(emp_overall_draws,emp_temp_pred)
 emp_overall_lines<-posterior_lines(emp_overall_draws,emp_temp_pred,n_draws = n_draw_lines)
 
 emp_overall_Topt <- apply(emp_overall_draws,1,function(x) {emp_temp_pred[which.max(x)]})
+quantile(emp_overall_Topt, probs=c(0.025, 0.5, 0.975))
 
 # Posterior medians
 emp_Topt_med=median(emp_overall_Topt)
@@ -136,9 +141,11 @@ emp_Tmax_med=median(emp_speed_pars$Tmax)
 
 #alpha
 emp_alpha_med=median(emp_speed_pars$alpha)
+quantile(emp_speed_pars$alpha, probs=c(0.025, 0.5, 0.975))
 
 #beta
 emp_beta_med=median(emp_speed_pars$beta)
+quantile(emp_speed_pars$beta, probs=c(0.025, 0.5, 0.975))
 
 emp_p_overall <- ggplot()+geom_line(data =emp_overall_lines,aes(x = temp,y = value,group = draw),
                                       alpha = 0.06,linewidth = 0.3) +
@@ -146,7 +153,7 @@ emp_p_overall <- ggplot()+geom_line(data =emp_overall_lines,aes(x = temp,y = val
               alpha = 0.2) +geom_line(data = emp_overall_curve,
                                       aes( x = temp,y = median),linewidth = 1.1)+
   geom_point(data =emp_dat,aes(x = loc_temp,y = if_else(movement == 0, 0, speed)), 
-             alpha = 0.4) + theme_classic()+ggtitle("empids (ZAC only)")+
+             alpha = 0.4) + theme_classic()+ggtitle("empidids (ZAC only)")+
   geom_vline(xintercept=emp_Topt_med, lty=2, col="black", lwd=1)+
   geom_vline(xintercept=emp_Tmin_med, lty=2, col="grey", lwd=1)+
   geom_vline(xintercept=emp_Tmax_med, lty=2, col="grey", lwd=1)+
